@@ -10,12 +10,13 @@ const emailValidator = (email) => {
 };
 const getOrders = async (limit) => {
   let userOrders = db.collection("orders");
-  const docs = await userOrders
-    .orderBy("title")
-    .limit(limit || 5)
-    .get();
 
   try {
+    const docs = await userOrders
+      .orderBy("title")
+      .limit(limit || 5)
+      .get();
+
     let data = [];
     if (!docs.empty) {
       docs.forEach((orders) => {
@@ -34,6 +35,30 @@ const getOrders = async (limit) => {
     return data;
   } catch (error) {
     console.log(error);
+  }
+};
+
+const getUsers = async (limit) => {
+  const users = db.collection("users").limit(limit || 5);
+  try {
+    const docs = await users.get();
+    let data = [];
+    if (!docs.empty) {
+      docs.forEach((user) => {
+        if (user.exists) {
+          data.push({
+            ...user.data(),
+          });
+        } else {
+          return "error";
+        }
+      });
+    } else {
+      console.log("List is empty");
+    }
+    return data;
+  } catch (error) {
+    return error;
   }
 };
 
@@ -175,7 +200,7 @@ const deleteOrderByEmail = async (email) => {
         } else {
           return false;
         }
-      }else{
+      } else {
         return false;
       }
     } catch (error) {
@@ -192,4 +217,5 @@ module.exports = {
   updateOrder,
   deleteOrderById,
   deleteOrderByEmail,
+  getUsers,
 };

@@ -44,9 +44,9 @@ const Login = () => {
 
   return (
     <div className="w-full sm:max-w-xs md:max-w-md m-auto pb-4">
-      <form className="bg-white rounded px-8 pt-6 pb-8 mb-4 dark:bg-darkSecondary">
+      <form className="bg-white rounded px-8 pt-6 pb-8 mb-4 ">
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2 uppercase dark:text-white">
+          <label className="block text-gray-700 text-sm font-bold mb-2 uppercase ">
             Email
           </label>
 
@@ -62,8 +62,6 @@ const Login = () => {
                   text-gray-500
                   leading-tight
                   focus:outline-none focus:shadow-outline
-                  dark:text-white
-                  dark:shadow-lg
 
                   ${
                     errorState.phoneNumberErr
@@ -94,7 +92,7 @@ const Login = () => {
         </div>
 
         <div className="mb-6">
-          <label className="block text-gray-700 text-sm font-bold mb-2 uppercase dark:text-white">
+          <label className="block text-gray-700 text-sm font-bold mb-2 uppercase ">
             Password
           </label>
           <input
@@ -110,7 +108,6 @@ const Login = () => {
                   leading-tight
                   focus:outline-none 
                   focus:shadow-outline
-                  dark:text-white
                   
 
                   ${

@@ -5,7 +5,8 @@ const {
     getOrderByEmail,
     updateOrder,
     deleteOrderById,
-    deleteOrderByEmail
+    deleteOrderByEmail,
+    getUsers
 } = require('../Models');
 const orders = [
   {
@@ -43,6 +44,10 @@ const rootResolver = {
 
   getOrder: async ({ id }) =>{
        return getOrder(id);  
+  },
+
+  getUsers: ({limit}) =>{
+    return getUsers(limit)
   },
 
   getOrderByEmail: ({email}) =>{

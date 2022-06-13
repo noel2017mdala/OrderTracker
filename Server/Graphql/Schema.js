@@ -30,12 +30,20 @@ type Address{
     zip: String
 }
 
+type Users{
+    name: String,
+    email: String,
+    uid: String,
+    phone: String
+}
+
 type Query{
     name: String,
     email: String,
     getOrders(limit: Int): [Orders],
     getOrder(id: String): [Orders]
     getOrderByEmail(email: String): [Orders]
+    getUsers(limit: Int): [Users]
 }
 
 
