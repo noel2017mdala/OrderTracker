@@ -2,3 +2,4 @@
 /Server/Configs/firebaseConfig.js
 /Server/Configs/serviceAccountKey.json
 /Server/node_modules
+/client/src/firebase/firebaseConfig.js
