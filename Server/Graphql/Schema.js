@@ -14,7 +14,7 @@ type Order{
     bookingDate: String,
     customer: Customer,
     title: String,
-    uid: String
+    uid: ID
 }
 
 type Customer{
@@ -33,7 +33,7 @@ type Address{
 type Users{
     name: String,
     email: String,
-    uid: String,
+    uid: ID,
     phone: String
 }
 
@@ -41,7 +41,7 @@ type Query{
     name: String,
     email: String,
     getOrders(limit: Int): [Orders],
-    getOrder(id: String): [Orders]
+    getOrder(id: ID): [Orders]
     getOrderByEmail(email: String): [Orders]
     getUsers(limit: Int): [Users]
 }
@@ -51,7 +51,7 @@ type Mutation{
     addOrder(input: OrderInput): Order
     createOrder(input: OrderInput): Order
     updateOrder(input: OrderInput): Order
-    deleteOrder(id: String): String
+    deleteOrder(id: ID!): ID
     deleteAllOrdersByEmail(email: String): String
 }
 
@@ -70,7 +70,7 @@ input AddressInput{
 
 input OrderInput{
     title: String,
-    uid: String,
+    uid: ID,
     customer: CustomerInput,
     bookingDate: String,
     address: AddressInput,

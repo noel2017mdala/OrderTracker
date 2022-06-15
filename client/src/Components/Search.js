@@ -1,27 +1,41 @@
 import React, { useState } from "react";
-import { useLazyQuery } from "@apollo/client";
+import { request, GraphQLClient } from "graphql-request";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 import { GET_ORDER_BY_EMAIL, GET_ORDER_BY_ID } from "../graphql/queries";
+import EmailSearch from "./EmailsSearch";
+import IdSearch from "./IdSearch";
 
 const Search = () => {
   const [searchText, setSearchText] = useState("");
   const [selectState, setSelectState] = useState("");
-  // const [searchText, setSearchText] = useState("");
+  const [emailTab, setEmailTab] = useState(false);
+  const [idTab, setIdTab] = useState(false);
 
-  const [searchByEmail, { loading, error, data }] = useLazyQuery(
-    GET_ORDER_BY_EMAIL,
-    {
-      variables: { email: searchText },
-    }
-  );
+  const queryClient = useQueryClient();
 
-  const [searchById, { loading: load, error: err, data: searchData }] =
-    useLazyQuery(GET_ORDER_BY_ID, {
-      variables: { id: searchText },
+  const {
+    data: emailData,
+    isLoading: emailLoader,
+    error: emailErr,
+  } = useQuery(["get_orders_by_email", emailTab], () => {
+    return request(
+      process.env.REACT_APP_PRODUCTION_SERVER,
+      GET_ORDER_BY_EMAIL,
+      {
+        email: searchText,
+      }
+    );
+  });
+
+  const {
+    data: IDData,
+    isLoading: IDLoader,
+    error: IDErr,
+  } = useQuery(["get_orders_by_id", idTab], () => {
+    return request(process.env.REACT_APP_PRODUCTION_SERVER, GET_ORDER_BY_ID, {
+      id: searchText,
     });
-
-  console.log(searchData);
-
-  console.log(data);
+  });
 
   const validateUserInput = (searchText, searchByField) => {
     if (searchText === "" && searchByField === "") {
@@ -32,16 +46,19 @@ const Search = () => {
       console.log("Please select which field to select by");
     } else {
       if (searchByField === "Email") {
-        console.log("searching by email");
-        searchByEmail();
+        setEmailTab(true);
+        setIdTab(false);
+        // searchByEmail();
       } else if (searchByField === "Uid") {
-        console.log("Searching by uid");
-        searchById();
+        setIdTab(true);
+        setEmailTab(false);
+        // searchById();
       } else {
         console.log("error");
       }
     }
   };
+
   return (
     <div className="flex h-fit w-9/12  mx-auto mt-14">
       <div className="overflow-auto  mx-auto md:w-3/4 lg:w-3/4">
@@ -75,6 +92,10 @@ const Search = () => {
             type="text"
             placeholder="Find orders by uid or email"
             onChange={(e) => {
+              if (idTab || (emailTab && e.target.value.length === 0)) {
+                setEmailTab(false);
+                setIdTab(false);
+              }
               setSearchText(e.target.value);
             }}
           />
@@ -90,6 +111,12 @@ const Search = () => {
             Search
           </button>
         </div>
+
+        {emailTab && emailData ? (
+          <EmailSearch values={emailData} />
+        ) : idTab && IDData ? (
+          <IdSearch values={IDData} />
+        ) : null}
       </div>
     </div>
   );

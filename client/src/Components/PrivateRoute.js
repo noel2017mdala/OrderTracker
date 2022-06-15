@@ -1,7 +1,9 @@
 import React from "react";
 import { Route, Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/authContext";
+// import firebase from "firebase";
 
+// const token = await firebase.auth().currentUser().getIdToken(/* forceRefresh */ false);
 const PrivateRoute = ({ component: Component, ...rest }) => {
   const { currentUser } = useAuth();
     return (

@@ -13,7 +13,7 @@ const getOrders = async (limit) => {
 
   try {
     const docs = await userOrders
-      .orderBy("title")
+      .where("uid", "!=", "")
       .limit(limit || 5)
       .get();
 
@@ -108,7 +108,7 @@ const getOrderByEmail = async (input) => {
       return arr;
     } catch (error) {}
   } else {
-    console.log("failed to create document");
+    // console.log("failed to create document");
     return null;
   }
 };
@@ -163,13 +163,30 @@ const deleteOrderById = async (id) => {
 
     if (getUser) {
       try {
-        const deleteUser = await db.collection("orders").doc(id).delete();
-        if (deleteUser) {
+        let order = await db.collection("orders").where("uid", "==", id).get();
+
+        const batch = db.batch();
+
+        order.forEach((doc) => {
+          batch.delete(doc.ref);
+        });
+
+        let data = await batch.commit();
+
+        if (data) {
           return id;
         } else {
-          return false;
+          console.log("Failed to delete");
         }
+        // return;
+        // const deleteUser = await db.collection("orders").doc(id).delete();
+        // if (deleteUser) {
+        //   return id;
+        // } else {
+        //   return false;
+        // }
       } catch (error) {
+        console.log(error);
         return false;
       }
     } else {

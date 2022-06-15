@@ -1,99 +1,123 @@
 import React, { useState } from "react";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "react-query";
+import { request } from "graphql-request";
 import { GET_USERS } from "../graphql/queries";
+import ClipLoader from "react-spinners/ClipLoader";
+import { css } from "@emotion/react";
 const Users = () => {
-
   const [selectState, setSelectState] = useState(5);
 
-  const { error, loading, data, refetch } = useQuery(GET_USERS, {
-    variables: {limit: Number(selectState)}
+  // const { error, loading, data, refetch } = useQuery(GET_USERS, {
+  //   variables: {limit: Number(selectState)}
+  // });
+
+  const { data, isLoading, error } = useQuery(["get_users",selectState], () => {
+    return request(process.env.REACT_APP_PRODUCTION_SERVER, GET_USERS, {
+      limit: Number(selectState),
+    });
   });
 
+  // console.log(data);
+
+  const override = css`
+    display: block;
+    border-color: #ffffff;
+  `;
+  // if (loading) return <div>Loading ...</div>;
+
+  // if (error) return <div>Opps something</div>;
 
   // console.log(data);
-  if (loading) return <div>Loading ...</div>;
 
-  if (error) return <div>Opps something</div>;
+  // <ClipLoader color="#FFFFFF" css={override} size={30} />
 
- 
   return (
     <div className="flex h-fit w-9/12  mx-auto mt-14">
-      <div className="overflow-auto rounded-lg shadow mx-auto md:w-3/4 lg:w-3/4">
-        <select
-          className="float-right px-4 py-2 mb-2 rounded border-none"
-          onChange={(e) => {
-            setSelectState(e.target.value);
-          }}
+      {isLoading ? (
+        <ClipLoader color="#00BFA5" css={override} size={30} />
+      ) : error ? (
+        <p>Opps something happened please try again later</p>
+      ) : data.getUsers.length < 1 ? (
+        <p>No Users found</p>
+      ) : (
+        <div className="overflow-auto rounded-lg shadow mx-auto md:w-3/4 lg:w-3/4">
+          <select
+            className="float-right px-4 py-2 mb-2 rounded border-none"
+            onChange={(e) => {
+              setSelectState(e.target.value);
+            }}
+            value={selectState}
+          >
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+          </select>
 
-          value={selectState}
-        >
-          <option value={5}>5</option>
-          <option value={10}>10</option>
-          <option value={25}>25</option>
-        </select>
-        <table className="w-full">
-          <thead className="bg-gray-50 border-b-2 border-gray-200">
-            <tr>
-              <th className="p-3 text-sm font-semibold tracking-wide text-left">
-                No.
-              </th>
-              <th className="p-3 text-sm font-semibold tracking-wide text-left">
-                Name
-              </th>
-              <th className="p-3 text-sm font-semibold tracking-wide text-left">
-                Email
-              </th>
-              <th className="p-3 text-sm font-semibold tracking-wide text-left">
-                Phone
-              </th>
-              <th className="p-3 text-sm font-semibold tracking-wide text-left">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.getUsers.map((user, i) => (
-              <tr key={i}>
-                <td
-                  className={`p-3 text-sm text-gray-700 ${
-                    i + (1 % 2) === 0 ? "bg-white" : "bg-gray-50"
-                  }`}
-                >
-                  {(i = 1)}
-                </td>
-                <td
-                  className={`p-3 text-sm text-gray-700 ${
-                    i + (1 % 2) === 0 ? "bg-white" : "bg-gray-50"
-                  }`}
-                >
-                  {user.name}
-                </td>
-                <td
-                  className={`p-3 text-sm text-gray-700 ${
-                    i + (1 % 2) === 0 ? "bg-white" : "bg-gray-50"
-                  }`}
-                >
-                  {user.email}
-                </td>
-                <td
-                  className={`p-3 text-sm text-gray-700 ${
-                    i + (1 % 2) === 0 ? "bg-white" : "bg-gray-50"
-                  }`}
-                >
-                  {user.phone}
-                </td>
-                <td
-                  className={`p-3 text-sm text-gray-700 ${
-                    i + (1 % 2) === 0 ? "bg-white" : "bg-gray-50"
-                  }`}
-                >
-                  <button>View all customer Orders</button>
-                </td>
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b-2 border-gray-200">
+              <tr>
+                <th className="p-3 text-sm font-semibold tracking-wide text-left">
+                  No.
+                </th>
+                <th className="p-3 text-sm font-semibold tracking-wide text-left">
+                  Name
+                </th>
+                <th className="p-3 text-sm font-semibold tracking-wide text-left">
+                  Email
+                </th>
+                <th className="p-3 text-sm font-semibold tracking-wide text-left">
+                  Phone
+                </th>
+                <th className="p-3 text-sm font-semibold tracking-wide text-left">
+                  Action
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+
+            <tbody>
+              {data.getUsers.map((user, i) => (
+                <tr key={i}>
+                  <td
+                    className={`p-3 text-sm text-gray-700 ${
+                      i + (1 % 2) === 0 ? "bg-white" : "bg-gray-50"
+                    }`}
+                  >
+                    {(i = 1)}
+                  </td>
+                  <td
+                    className={`p-3 text-sm text-gray-700 ${
+                      i + (1 % 2) === 0 ? "bg-white" : "bg-gray-50"
+                    }`}
+                  >
+                    {user.name}
+                  </td>
+                  <td
+                    className={`p-3 text-sm text-gray-700 ${
+                      i + (1 % 2) === 0 ? "bg-white" : "bg-gray-50"
+                    }`}
+                  >
+                    {user.email}
+                  </td>
+                  <td
+                    className={`p-3 text-sm text-gray-700 ${
+                      i + (1 % 2) === 0 ? "bg-white" : "bg-gray-50"
+                    }`}
+                  >
+                    {user.phone}
+                  </td>
+                  <td
+                    className={`p-3 text-sm text-gray-700 ${
+                      i + (1 % 2) === 0 ? "bg-white" : "bg-gray-50"
+                    }`}
+                  >
+                    <button>View all customer Orders</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
