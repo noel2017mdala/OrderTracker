@@ -1,56 +1,39 @@
 import React, { useState } from "react";
-import { request, GraphQLClient } from "graphql-request";
 import { GET_ORDERS } from "../graphql/queries";
 import { css } from "@emotion/react";
 import ClipLoader from "react-spinners/ClipLoader";
 import CreateOrderModal from "./Modal/CreateOrderModal";
 import { timeConverter } from "../helper/UnixTimeConverter";
-import { useQuery, useMutation, useQueryClient } from "react-query";
+import { useQueryClient } from "react-query";
 import { DELETE_ORDER_BY_ID } from "../graphql/mutations";
-import DeleteButton from "./DeleteButton";
 import UpdateModal from "./Modal/UpdateModal";
+import { useGQLMutation } from "../hooks/useGqlMutations";
+import { useGQLQuery } from "../hooks/useGqlQueries";
+
 const Orders = () => {
   const [selectState, setSelectState] = useState(5);
   const [modalState, setModalState] = useState(false);
   const [updateModal, setUpdateModalState] = useState(false);
   const [orderData, setOrderData] = useState({});
 
-  const queryClient = useQueryClient();
-
-  const { data, isLoading, error } = useQuery(
-    ["get_orders", selectState],
-    () => {
-      return request(process.env.REACT_APP_PRODUCTION_SERVER, GET_ORDERS, {
-        limit: Number(selectState),
-      });
-    }
-  );
-
   const override = css`
     display: block;
     border-color: #00bfa5;
   `;
 
-  const deleteOrderFunc = async (id) => {
-    let deleteOrder = await request(
-      process.env.REACT_APP_PRODUCTION_SERVER,
-      DELETE_ORDER_BY_ID,
-      {
-        id,
-      }
-    );
+  const queryClient = useQueryClient();
 
-    if (deleteOrder) {
-      console.log(deleteOrder);
-    }
-  };
-  // console.log(data);
-
-  const { mutateAsync: deleteOrder } = useMutation(deleteOrderFunc, {
+  const { mutateAsync: deleteOrder } = useGQLMutation(DELETE_ORDER_BY_ID, {
     onSuccess: () => {
       queryClient.invalidateQueries("get_orders");
     },
   });
+
+  const { data, isLoading, error } = useGQLQuery(
+    ["get_orders", selectState],
+    GET_ORDERS,
+    { limit: Number(selectState) }
+  );
 
   return (
     <div className="flex h-fit w-9/12  mx-auto mt-14 ">
@@ -163,8 +146,7 @@ const Orders = () => {
                         <button
                           className="px-3 bg-red-600 sm:py-3 text-white rounded hover:bg-red-700"
                           onClick={() => {
-                            // console.log(order.uid);
-                            deleteOrder(order.uid);
+                            deleteOrder({ id: order.uid });
                           }}
                         >
                           Delete

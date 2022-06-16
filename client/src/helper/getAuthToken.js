@@ -2,8 +2,7 @@ import firebase from "../firebase/firebase";
 
 const getAuthToken = async () => {
   let token = await firebase.auth().currentUser.getIdToken();
-  console.log(token);
+  return token;
 };
-
 
 export default getAuthToken;

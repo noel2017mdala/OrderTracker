@@ -113,7 +113,11 @@ const Search = () => {
         </div>
 
         {emailTab && emailData ? (
-          <EmailSearch values={emailData} />
+          <EmailSearch
+            values={emailData}
+            state={emailLoader}
+            error={emailErr}
+          />
         ) : idTab && IDData ? (
           <IdSearch values={IDData} />
         ) : null}

@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useQueryClient } from "react-query";
 import { useAuth } from "../../context/authContext";
 import { RiCloseLine } from "react-icons/ri";
 import styles from "../../styles.css";
 import { UPDATE_ORDER } from "../../graphql/mutations";
-import getAuthToken from "../../helper/getAuthToken";
-import request from "graphql-request";
+import { useGQLMutation } from "../../hooks/useGqlMutations";
 
 const UpdateModal = ({ modalState, orderData }) => {
   const [title, setTitle] = useState(orderData.title);
@@ -17,23 +16,7 @@ const UpdateModal = ({ modalState, orderData }) => {
 
   const queryClient = useQueryClient();
 
-  const updateOrderFunc = async (data) => {
-    let updateOrder = await request(
-      process.env.REACT_APP_PRODUCTION_SERVER,
-      UPDATE_ORDER,
-      {
-        input: data,
-      }
-    );
-
-    if (updateOrder) {
-      console.log(updateOrder);
-    } else {
-      console.log("failed to update order");
-    }
-  };
-
-  const { mutateAsync: updateOrder } = useMutation(updateOrderFunc, {
+  const { mutateAsync: updateOrder } = useGQLMutation(UPDATE_ORDER, {
     onSuccess: () => {
       queryClient.invalidateQueries("get_orders");
     },
@@ -236,7 +219,7 @@ const UpdateModal = ({ modalState, orderData }) => {
                           uid: orderData.uid,
                         };
 
-                        let result = updateOrder(data);
+                        let result = updateOrder({ input: data });
 
                         if (result) {
                           console.log(data);

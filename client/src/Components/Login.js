@@ -1,39 +1,99 @@
 import React, { useState } from "react";
 import { css } from "@emotion/react";
+import { ToastContainer, toast } from "react-toastify";
 import ClipLoader from "react-spinners/ClipLoader";
 import { useAuth } from "../context/authContext";
-import {Link, useNavigate} from 'react-router-dom'
+import { Link, useNavigate } from "react-router-dom";
 const Login = () => {
   const { logIn, currentUser } = useAuth();
   const [errorState, setErrorState] = useState({
-    phoneNumberErr: false,
+    emailError: false,
     passwordErr: false,
   });
 
   const [loginState, setLoginState] = useState(false);
-
+  const regEx = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
   const [uiState, setUi] = useState({
     email: "",
     password: "",
   });
 
   const navigate = useNavigate();
+
   const validate = (input) => {
     if (/^\s/.test(input.target.value) && input.target.value !== undefined) {
       input.target.value = "";
     }
   };
 
+
+  let notify = {
+    success: (message) => {
+      toast.success(message, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    },
+
+    fail: (message) => {
+      toast.error(message, {
+        position: "top-right",
+        autoClose: 9000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    },
+  };
+
+
   const validateLogin = async (e) => {
+    setLoginState(true);
     e.preventDefault();
 
-    console.log(uiState.email, uiState.password);
+    if (uiState.email === "" && uiState.password === "") {
+      setErrorState({
+        emailError: true,
+        passwordErr: true,
+      });
 
-    try {
-      await logIn(uiState.email, uiState.password);
-      navigate("/");
-    } catch (error) {
-      console.log(error);
+      setLoginState(false);
+    } else if (uiState.email === "") {
+      setErrorState({
+        emailError: true,
+      });
+      setLoginState(false);
+    } else if (uiState.password === "") {
+      setErrorState({
+        passwordErr: true,
+      });
+      setLoginState(false);
+    } else if (regEx.test(uiState.email)) {
+      setErrorState({
+        emailError: true,
+      });
+      setLoginState(false);
+    } else {
+      try {
+        let res = await logIn(uiState.email, uiState.password);
+        if(res){
+          console.log("hello");
+          console.log(res.t);
+        }else{
+          console.log("Error");
+        }
+        return;
+        navigate("/");
+      } catch (error) {
+        setLoginState(false);
+      }
     }
   };
 
@@ -64,7 +124,7 @@ const Login = () => {
                   focus:outline-none focus:shadow-outline
 
                   ${
-                    errorState.phoneNumberErr
+                    errorState.emailError
                       ? ` border-solid
                   border-red-500
                     border-3`
@@ -84,11 +144,17 @@ const Login = () => {
 
               setErrorState({
                 ...errorState,
-                phoneNumberErr: false,
+                emailError: false,
                 passwordErr: false,
               });
             }}
           />
+
+          <p className="text-red-500 text-sm italic pt-3">
+            {errorState.emailError
+              ? "Please enter a valid Phone number."
+              : null}
+          </p>
         </div>
 
         <div className="mb-6">
@@ -100,6 +166,7 @@ const Login = () => {
                   shadow
                   appearance-none
                   rounded
+                  border
                   w-full
                   py-3
                   px-3
@@ -131,7 +198,7 @@ const Login = () => {
 
               setErrorState({
                 ...errorState,
-                phoneNumberErr: false,
+                emailError: false,
                 passwordErr: false,
               });
             }}
@@ -192,6 +259,7 @@ const Login = () => {
           </a>
         </div>
       </form>
+      <ToastContainer />
     </div>
   );
 };

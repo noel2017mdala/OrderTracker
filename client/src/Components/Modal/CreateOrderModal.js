@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { RiCloseLine } from "react-icons/ri";
-import { request } from "graphql-request";
 import { useAuth } from "../../context/authContext";
-import { useQuery, useMutation, useQueryClient } from "react-query";
+import { useQueryClient } from "react-query";
 import { CREATE_ORDER } from "../../graphql/mutations";
-// import { GET_ORDERS } from "../../graphql/queries";
+import { useGQLMutation } from "../../hooks/useGqlMutations";
 import uuid from "react-uuid";
 import styles from "../../styles.css";
 const CreateOrderModal = ({ values, fetchData }) => {
@@ -13,46 +12,15 @@ const CreateOrderModal = ({ values, fetchData }) => {
   const [orderCity, setOrderCity] = useState("");
   const [orderZip, setOrderZip] = useState("");
   const [orderStreet, setOrderStreet] = useState("");
-  const [submitData, setSubmitData] = useState({});
 
   const { currentUser } = useAuth();
   const queryClient = useQueryClient();
 
-  // const [createOrder] = useMutation(CREATE_ORDER, {
-  //   variables: { input: submitData },
-  //   update(cache, { data: { createOrder } }) {
-  //     const order = cache.readQuery({ query: GET_ORDERS });
-  //     console.log(order);
-  //     // cache.writeQuery({
-  //     //   query: GET_ORDERS,
-  //     //   data: { getOrders: [...getOrders, createOrder] },
-  //     // });
-  //   },
-  // });
-
-  // const [createOrder] = useMutation(CREATE_ORDER);
-  // const {loading, error, data, refetch} = useQuery(GET_ORDERS)
-
-  const createOrderFunc = async (orderData) => {
-    let createOrder = await request(
-      process.env.REACT_APP_PRODUCTION_SERVER,
-      CREATE_ORDER,
-      {
-        input: orderData,
-      }
-    );
-
-    if (createOrder) {
-      console.log(createOrder);
-    }
-  };
-
-  const { mutateAsync: createOrder } = useMutation(createOrderFunc, {
+  const { mutateAsync: createOrder } = useGQLMutation(CREATE_ORDER, {
     onSuccess: () => {
       queryClient.invalidateQueries("get_orders");
     },
   });
-
   return (
     <>
       <div
@@ -276,7 +244,10 @@ const CreateOrderModal = ({ values, fetchData }) => {
                               : "0123456789",
                           },
                         };
-                        createOrder(data);
+                        let res = createOrder({ input: data });
+                        if(res){
+                          console.log("Order created");
+                        }
                       }
                     }}
                   >

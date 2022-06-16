@@ -1,35 +1,26 @@
 import React, { useState } from "react";
-import { useQuery } from "react-query";
-import { request } from "graphql-request";
 import { GET_USERS } from "../graphql/queries";
 import ClipLoader from "react-spinners/ClipLoader";
 import { css } from "@emotion/react";
+import { useGQLQuery } from "../hooks/useGqlQueries";
+import { useAuth } from "../context/authContext";
 const Users = () => {
   const [selectState, setSelectState] = useState(5);
+  const { userToken } = useAuth();
 
-  // const { error, loading, data, refetch } = useQuery(GET_USERS, {
-  //   variables: {limit: Number(selectState)}
-  // });
-
-  const { data, isLoading, error } = useQuery(["get_users",selectState], () => {
-    return request(process.env.REACT_APP_PRODUCTION_SERVER, GET_USERS, {
-      limit: Number(selectState),
-    });
-  });
-
-  // console.log(data);
+  const { data, isLoading, error } = useGQLQuery(
+    ["get_users", selectState],
+    GET_USERS,
+    { limit: Number(selectState) }
+  );
 
   const override = css`
     display: block;
     border-color: #ffffff;
   `;
-  // if (loading) return <div>Loading ...</div>;
+  if (isLoading) return <div>Loading ...</div>;
 
-  // if (error) return <div>Opps something</div>;
-
-  // console.log(data);
-
-  // <ClipLoader color="#FFFFFF" css={override} size={30} />
+  if (error) return <div>Opps something</div>;
 
   return (
     <div className="flex h-fit w-9/12  mx-auto mt-14">
@@ -51,6 +42,7 @@ const Users = () => {
             <option value={5}>5</option>
             <option value={10}>10</option>
             <option value={25}>25</option>
+            <option value={50}>25</option>
           </select>
 
           <table className="w-full">
