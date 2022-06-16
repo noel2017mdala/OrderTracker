@@ -8,6 +8,7 @@ const emailValidator = (email) => {
       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     );
 };
+
 const getOrders = async (limit) => {
   let userOrders = db.collection("orders");
 
@@ -29,7 +30,7 @@ const getOrders = async (limit) => {
         }
       });
     } else {
-      console.log("List is empty");
+      return [];
     }
 
     return data;
@@ -50,11 +51,11 @@ const getUsers = async (limit) => {
             ...user.data(),
           });
         } else {
-          return "error";
+          return [];
         }
       });
     } else {
-      console.log("List is empty");
+      return []
     }
     return data;
   } catch (error) {
@@ -80,12 +81,13 @@ const getOrder = async (id) => {
           }
         });
       } else {
-        return false;
+        return [];
       }
 
-      //console.log(data);
       return data;
-    } catch (error) {}
+    } catch (error) {
+      return error;
+    }
   }
 };
 
@@ -102,14 +104,14 @@ const getOrderByEmail = async (input) => {
           });
         });
       } else {
-        console.log("empty");
-        return;
+        return [];
       }
       return arr;
-    } catch (error) {}
+    } catch (error) {
+      return error;
+    }
   } else {
-    // console.log("failed to create document");
-    return null;
+    return [];
   }
 };
 
@@ -178,13 +180,6 @@ const deleteOrderById = async (id) => {
         } else {
           console.log("Failed to delete");
         }
-        // return;
-        // const deleteUser = await db.collection("orders").doc(id).delete();
-        // if (deleteUser) {
-        //   return id;
-        // } else {
-        //   return false;
-        // }
       } catch (error) {
         console.log(error);
         return false;
@@ -221,7 +216,7 @@ const deleteOrderByEmail = async (email) => {
         return false;
       }
     } catch (error) {
-      return false;
+      return error;
     }
   }
 };

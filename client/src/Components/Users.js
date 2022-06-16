@@ -16,20 +16,27 @@ const Users = () => {
 
   const override = css`
     display: block;
-    border-color: #ffffff;
+    border-color: #00bfa5;
   `;
-  if (isLoading) return <div>Loading ...</div>;
 
   if (error) return <div>Opps something</div>;
 
   return (
     <div className="flex h-fit w-9/12  mx-auto mt-14">
       {isLoading ? (
-        <ClipLoader color="#00BFA5" css={override} size={30} />
+        <div className="w-full mx-auto flex items-center justify-center">
+          <ClipLoader color="#00BFA5" css={override} size={50} className="" />
+        </div>
       ) : error ? (
-        <p>Opps something happened please try again later</p>
+        <div className="absolute mx-auto  w-full">
+        <p className="text-center  w-full">
+          Opps something happened please try again later
+        </p>
+      </div>
       ) : data.getUsers.length < 1 ? (
+        <div className="absolute mx-auto  w-full">
         <p>No Users found</p>
+      </div>
       ) : (
         <div className="overflow-auto rounded-lg shadow mx-auto md:w-3/4 lg:w-3/4">
           <select
@@ -42,7 +49,7 @@ const Users = () => {
             <option value={5}>5</option>
             <option value={10}>10</option>
             <option value={25}>25</option>
-            <option value={50}>25</option>
+            <option value={50}>50</option>
           </select>
 
           <table className="w-full">

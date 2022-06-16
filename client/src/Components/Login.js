@@ -4,6 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import ClipLoader from "react-spinners/ClipLoader";
 import { useAuth } from "../context/authContext";
 import { Link, useNavigate } from "react-router-dom";
+import EmailValidator from '../helper/EmailValidator';
 const Login = () => {
   const { logIn, currentUser } = useAuth();
   const [errorState, setErrorState] = useState({
@@ -18,6 +19,12 @@ const Login = () => {
     password: "",
   });
 
+
+
+  const [errMsg, setErrMsg] = useState({
+    state: false,
+    msg: "",
+  });
   const navigate = useNavigate();
 
   const validate = (input) => {
@@ -25,7 +32,6 @@ const Login = () => {
       input.target.value = "";
     }
   };
-
 
   let notify = {
     success: (message) => {
@@ -53,7 +59,6 @@ const Login = () => {
     },
   };
 
-
   const validateLogin = async (e) => {
     setLoginState(true);
     e.preventDefault();
@@ -75,23 +80,21 @@ const Login = () => {
         passwordErr: true,
       });
       setLoginState(false);
-    } else if (regEx.test(uiState.email)) {
+    } else if (!EmailValidator(uiState.email)) {
       setErrorState({
         emailError: true,
+        
       });
       setLoginState(false);
     } else {
       try {
-        let res = await logIn(uiState.email, uiState.password);
-        if(res){
-          console.log("hello");
-          console.log(res.t);
-        }else{
-          console.log("Error");
-        }
-        return;
+        await logIn(uiState.email, uiState.password);
         navigate("/");
       } catch (error) {
+        setErrMsg({
+          state: true,
+          msg: "failed to login please try again",
+        });
         setLoginState(false);
       }
     }
@@ -103,15 +106,16 @@ const Login = () => {
   `;
 
   return (
-    <div className="w-full sm:max-w-xs md:max-w-md m-auto pb-4">
-      <form className="bg-white rounded px-8 pt-6 pb-8 mb-4 ">
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2 uppercase ">
-            Email
-          </label>
+    <>
+      <div className="w-full sm:max-w-xs md:max-w-md m-auto pb-4">
+        <form className="bg-white rounded px-8 pt-6 pb-8 mb-4 ">
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2 uppercase ">
+              Email
+            </label>
 
-          <input
-            className={`
+            <input
+              className={`
                   shadow
                   appearance-none
                   border
@@ -131,38 +135,43 @@ const Login = () => {
                       : null
                   }
   `}
-            id="username"
-            type="text"
-            value={uiState.email}
-            placeholder="Email"
-            onInput={validate}
-            onChange={(e) => {
-              setUi({
-                ...uiState,
-                email: e.target.value,
-              });
+              id="username"
+              type="text"
+              value={uiState.email}
+              placeholder="Email"
+              onInput={validate}
+              onChange={(e) => {
+                setUi({
+                  ...uiState,
+                  email: e.target.value,
+                });
 
-              setErrorState({
-                ...errorState,
-                emailError: false,
-                passwordErr: false,
-              });
-            }}
-          />
+                setErrorState({
+                  ...errorState,
+                  emailError: false,
+                  passwordErr: false,
+                });
 
-          <p className="text-red-500 text-sm italic pt-3">
-            {errorState.emailError
-              ? "Please enter a valid Phone number."
-              : null}
-          </p>
-        </div>
+                setErrMsg({
+                  state: false,
+                  msg: "",
+                });
+              }}
+            />
 
-        <div className="mb-6">
-          <label className="block text-gray-700 text-sm font-bold mb-2 uppercase ">
-            Password
-          </label>
-          <input
-            className={`
+            <p className="text-red-500 text-sm italic pt-3">
+              {errorState.emailError
+                ? "Please enter a valid Phone number."
+                : null}
+            </p>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-gray-700 text-sm font-bold mb-2 uppercase ">
+              Password
+            </label>
+            <input
+              className={`
                   shadow
                   appearance-none
                   rounded
@@ -185,32 +194,37 @@ const Login = () => {
                       : null
                   }
                 `}
-            id="password"
-            type="password"
-            value={uiState.password}
-            placeholder="******************"
-            onInput={validate}
-            onChange={(e) => {
-              setUi({
-                ...uiState,
-                password: e.target.value,
-              });
+              id="password"
+              type="password"
+              value={uiState.password}
+              placeholder="******************"
+              onInput={validate}
+              onChange={(e) => {
+                setUi({
+                  ...uiState,
+                  password: e.target.value,
+                });
 
-              setErrorState({
-                ...errorState,
-                emailError: false,
-                passwordErr: false,
-              });
-            }}
-          />
-          <p className="text-red-500 text-sm italic pt-3">
-            {errorState.passwordErr ? "Please enter a valid password." : null}
-          </p>
-        </div>
+                setErrorState({
+                  ...errorState,
+                  emailError: false,
+                  passwordErr: false,
+                });
 
-        <div className="flex items-center justify-between">
-          <button
-            className="
+                setErrMsg({
+                  state: false,
+                  msg: "",
+                });
+              }}
+            />
+            <p className="text-red-500 text-sm italic pt-3">
+              {errorState.passwordErr ? "Please enter a valid password." : null}
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <button
+              className="
                   bg-main
                   text-white
                   font-bold
@@ -220,47 +234,30 @@ const Login = () => {
                   focus:outline-none focus:shadow-outline
                   shadow
                 hover:bg-mainHover"
-            type="button"
-            onClick={validateLogin}
-            disabled={loginState ? "disabled" : ""}
-            style={
-              loginState
-                ? {
-                    cursor: "not-allowed",
-                  }
-                : null
-            }
-          >
-            {loginState ? (
-              <ClipLoader color="#FFFFFF" css={override} size={30} />
-            ) : (
-              "Log in"
-            )}
-          </button>
-          <a
-            className="
-                  inline-block
-                  align-baseline
-                  font-bold
-                  text-sm text-blue-500
-                  hover:text-blue-800
-                  cursor-pointer
-                "
-            onClick={() => {
-              //   MySwal.fire({
-              //     icon: "info",
-              //     title: "Oops...",
-              //     text: "This feature will be available shortly",
-              //     confirmButtonColor: "#00BFA5",
-              //   });
-            }}
-          >
-            Forgot Password?
-          </a>
-        </div>
-      </form>
-      <ToastContainer />
-    </div>
+              type="button"
+              onClick={validateLogin}
+              disabled={loginState ? "disabled" : ""}
+              style={
+                loginState
+                  ? {
+                      cursor: "not-allowed",
+                    }
+                  : null
+              }
+            >
+              {loginState ? (
+                <ClipLoader color="#FFFFFF" css={override} size={30} />
+              ) : (
+                "Log in"
+              )}
+            </button>
+          </div>
+        </form>
+        {errMsg.state ? (
+          <p className="text-center font-bold text-red-400">{errMsg.msg}</p>
+        ) : null}
+      </div>
+    </>
   );
 };
 

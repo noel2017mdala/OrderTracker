@@ -3,6 +3,8 @@ import { useQueryClient } from "react-query";
 import { useAuth } from "../../context/authContext";
 import { RiCloseLine } from "react-icons/ri";
 import styles from "../../styles.css";
+import { css } from "@emotion/react";
+import ClipLoader from "react-spinners/ClipLoader";
 import { UPDATE_ORDER } from "../../graphql/mutations";
 import { useGQLMutation } from "../../hooks/useGqlMutations";
 
@@ -12,6 +14,11 @@ const UpdateModal = ({ modalState, orderData }) => {
   const [city, setCity] = useState(orderData.address.city);
   const [zip, setZip] = useState(orderData.address.zip);
   const [street, setStreet] = useState(orderData.address.street);
+  const [loader, setLoader] = useState(false);
+  const [msg, setMsg] = useState({
+    state: false,
+    message: "",
+  });
   const { currentUser } = useAuth();
 
   const queryClient = useQueryClient();
@@ -21,6 +28,62 @@ const UpdateModal = ({ modalState, orderData }) => {
       queryClient.invalidateQueries("get_orders");
     },
   });
+
+  const override = css`
+    display: block;
+    border-color: #ffffff;
+  `;
+
+  const updateOrderValidation = async () => {
+    setLoader(true);
+
+    if (
+      city === "" ||
+      title === "" ||
+      country === "" ||
+      zip === "" ||
+      street === ""
+    ) {
+      setMsg({
+        state: true,
+        message: "Please enter your values",
+      });
+      setLoader(false);
+    } else {
+      let data = {
+        address: {
+          city: city,
+          country: country,
+          street: street,
+        },
+        title: title,
+        uid: orderData.uid,
+      };
+      try {
+        let result = await updateOrder({ input: data });
+
+        if (result) {
+          setMsg({
+            state: true,
+            message: "Order updated successfully",
+          });
+          setLoader(false);
+        } else {
+          setMsg({
+            state: true,
+            message: "Failed to update Order",
+          });
+          setLoader(false);
+        }
+      } catch (error) {
+        setMsg({
+          state: true,
+          message: "Failed to update Order",
+        });
+        setLoader(false);
+      }
+    }
+  };
 
   return (
     <>
@@ -200,36 +263,15 @@ const UpdateModal = ({ modalState, orderData }) => {
                 "
                     onClick={async (e) => {
                       e.preventDefault();
-                      if (
-                        city === "" ||
-                        title === "" ||
-                        country === "" ||
-                        zip === "" ||
-                        street === ""
-                      ) {
-                        console.log("Please enter your values");
-                      } else {
-                        let data = {
-                          address: {
-                            city: city,
-                            country: country,
-                            street: street,
-                          },
-                          title: title,
-                          uid: orderData.uid,
-                        };
-
-                        let result = updateOrder({ input: data });
-
-                        if (result) {
-                          console.log(data);
-                        } else {
-                          console.log("Failed to update document");
-                        }
-                      }
+                      updateOrderValidation();
                     }}
+                    disabled={loader ? "disabled" : ""}
                   >
-                    update
+                    {loader ? (
+                      <ClipLoader color="#FFFFFF" css={override} size={30} />
+                    ) : (
+                      " update"
+                    )}
                   </button>
 
                   <button
@@ -238,10 +280,16 @@ const UpdateModal = ({ modalState, orderData }) => {
                       e.preventDefault();
                       modalState(false);
                     }}
+                    disabled={loader ? "disabled" : ""}
                   >
                     Cancel
                   </button>
                 </div>
+                {msg.state ? (
+                  <p className="block text-center mt-4 text-red-400">
+                    {msg.message}
+                  </p>
+                ) : null}
               </form>
             </div>
           </div>

@@ -1,13 +1,30 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Search from "./Search";
 import Users from "./Users";
 import Orders from "./Orders";
+import { useAuth } from "../context/authContext";
 const Dashboard = () => {
+  const { logOut } = useAuth();
   const [tabState, setTabState] = useState({
     users: true,
     orders: false,
     search: false,
   });
+
+  const [errMsg, setErrMsg] = useState("");
+
+  const navigate = useNavigate();
+  const handleLogOut = async () => {
+    setErrMsg("");
+    try {
+      await logOut();
+      navigate("/");
+    } catch (error) {
+      setErrMsg("failed to log out")
+    }
+  };
+
   return (
     <div className="">
       <nav className=" p-6 rounded-sm shadow-md w-full">
@@ -25,6 +42,8 @@ const Dashboard = () => {
           rounded focus:outline-none focus:shadow-outline
           shadow
         hover:bg-mainHover"
+
+        onClick={handleLogOut}
             >
               Log out
             </button>
@@ -92,7 +111,13 @@ const Dashboard = () => {
       </div>
 
       <div>
-          {tabState.users ? <Users /> : tabState.orders ? <Orders /> : tabState.search ? <Search /> : null}
+        {tabState.users ? (
+          <Users />
+        ) : tabState.orders ? (
+          <Orders />
+        ) : tabState.search ? (
+          <Search />
+        ) : null}
       </div>
     </div>
   );

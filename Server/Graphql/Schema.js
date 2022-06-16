@@ -38,8 +38,6 @@ type Users{
 }
 
 type Query{
-    name: String,
-    email: String,
     getOrders(limit: Int): [Orders],
     getOrder(id: ID): [Orders]
     getOrderByEmail(email: String): [Orders]
@@ -52,7 +50,7 @@ type Mutation{
     createOrder(input: OrderInput): Order
     updateOrder(input: OrderInput): Order
     deleteOrder(id: ID!): ID
-    deleteAllOrdersByEmail(email: String): String
+    deleteAllOrdersByEmail(email: String!): String
 }
 
 input CustomerInput{

@@ -4,14 +4,35 @@ import { useAuth } from "../../context/authContext";
 import { useQueryClient } from "react-query";
 import { CREATE_ORDER } from "../../graphql/mutations";
 import { useGQLMutation } from "../../hooks/useGqlMutations";
+import ClipLoader from "react-spinners/ClipLoader";
 import uuid from "react-uuid";
 import styles from "../../styles.css";
+import { css } from "@emotion/react";
 const CreateOrderModal = ({ values, fetchData }) => {
   const [orderTitle, setOrderTitle] = useState("");
   const [orderCountry, setOrderCountry] = useState("");
   const [orderCity, setOrderCity] = useState("");
   const [orderZip, setOrderZip] = useState("");
   const [orderStreet, setOrderStreet] = useState("");
+  const [createLoader, setCreateLoader] = useState(false);
+
+  const [errorState, setError] = useState({
+    orderTitleErr: false,
+    orderCityErr: false,
+    orderCountryErr: false,
+    orderZipErr: false,
+    orderStreetErr: false,
+  });
+
+  const [msg, setMsg] = useState({
+    state: false,
+    message: "",
+  });
+
+  const override = css`
+    display: block;
+    border-color: #ffffff;
+  `;
 
   const { currentUser } = useAuth();
   const queryClient = useQueryClient();
@@ -58,8 +79,18 @@ const CreateOrderModal = ({ values, fetchData }) => {
           text-gray-500
           leading-tight
           focus:outline-none focus:shadow-outline
+${
+  errorState.orderTitleErr
+    ? `
+  border-solid
+  border-red-500
+  border-3
+
+  `
+    : null
+}
+
 `}
-                    id="username"
                     type="text"
                     placeholder="Title"
                     value={orderTitle}
@@ -86,8 +117,17 @@ const CreateOrderModal = ({ values, fetchData }) => {
           text-gray-500
           leading-tight
           focus:outline-none focus:shadow-outline
+
+          ${
+            errorState.orderCountryErr
+              ? `
+            border-solid
+            border-red-500
+            border-3
+            `
+              : null
+          }
 `}
-                    id="username"
                     type="text"
                     placeholder="Country"
                     value={orderCountry}
@@ -114,8 +154,17 @@ const CreateOrderModal = ({ values, fetchData }) => {
           text-gray-500
           leading-tight
           focus:outline-none focus:shadow-outline
+
+          ${
+            errorState.orderCityErr
+              ? `
+            border-solid
+            border-red-500
+            border-3
+            `
+              : null
+          }
 `}
-                    id="username"
                     type="text"
                     placeholder="City"
                     value={orderCity}
@@ -142,8 +191,17 @@ const CreateOrderModal = ({ values, fetchData }) => {
           text-gray-500
           leading-tight
           focus:outline-none focus:shadow-outline
+
+          ${
+            errorState.orderZipErr
+              ? `
+            border-solid
+            border-red-500
+            border-3
+            `
+              : null
+          }
 `}
-                    id="username"
                     type="text"
                     placeholder="Zip"
                     value={orderZip}
@@ -170,8 +228,17 @@ const CreateOrderModal = ({ values, fetchData }) => {
           text-gray-500
           leading-tight
           focus:outline-none focus:shadow-outline
+
+          ${
+            errorState.orderStreetErr
+              ? `
+            border-solid
+            border-red-500
+            border-3
+            `
+              : null
+          }
 `}
-                    id="username"
                     type="text"
                     placeholder="Street"
                     value={orderStreet}
@@ -196,23 +263,76 @@ const CreateOrderModal = ({ values, fetchData }) => {
                 "
                     onClick={async (e) => {
                       e.preventDefault();
-                      // console.log(
-                      //   orderCity,
-                      //   orderTitle,
-                      //   orderCountry,
-                      //   orderZip,
-                      //   currentUser
-                      // );
+                      setCreateLoader(true);
 
                       if (
-                        orderCity == "" ||
-                        orderTitle == "" ||
-                        orderCountry == "" ||
-                        orderZip == "" ||
-                        orderStreet == ""
+                        orderCity === "" &&
+                        orderTitle === "" &&
+                        orderCountry === "" &&
+                        orderZip === "" &&
+                        orderStreet === ""
                       ) {
-                        console.log("please enter the values");
+                        setError({
+                          orderTitleErr: true,
+                          orderCityErr: true,
+                          orderCountryErr: true,
+                          orderZipErr: true,
+                          orderStreetErr: true,
+                        });
+                        setCreateLoader(false);
+                      } else if (orderCity === "") {
+                        setError({
+                          orderTitleErr: false,
+                          orderCityErr: true,
+                          orderCountryErr: false,
+                          orderZipErr: false,
+                          orderStreetErr: false,
+                        });
+                        setCreateLoader(false);
+                      } else if (orderTitle === "") {
+                        setError({
+                          orderTitleErr: true,
+                          orderCityErr: false,
+                          orderCountryErr: false,
+                          orderZipErr: false,
+                          orderStreetErr: false,
+                        });
+                        setCreateLoader(false);
+                      } else if (orderCountry === "") {
+                        setError({
+                          orderTitleErr: false,
+                          orderCityErr: false,
+                          orderCountryErr: true,
+                          orderZipErr: false,
+                          orderStreetErr: false,
+                        });
+                        setCreateLoader(false);
+                      } else if (orderZip === "") {
+                        setError({
+                          orderTitleErr: false,
+                          orderCityErr: false,
+                          orderCountryErr: false,
+                          orderZipErr: true,
+                          orderStreetErr: false,
+                        });
+                        setCreateLoader(false);
+                      } else if (orderStreet === "") {
+                        setError({
+                          orderTitleErr: false,
+                          orderCityErr: false,
+                          orderCountryErr: false,
+                          orderZipErr: false,
+                          orderStreetErr: true,
+                        });
+                        setCreateLoader(false);
                       } else {
+                        setError({
+                          orderTitleErr: false,
+                          orderCityErr: false,
+                          orderCountryErr: false,
+                          orderZipErr: false,
+                          orderStreetErr: false,
+                        });
                         const date = new Date();
                         let year = date.getFullYear();
                         let month = date.getMonth();
@@ -244,14 +364,45 @@ const CreateOrderModal = ({ values, fetchData }) => {
                               : "0123456789",
                           },
                         };
-                        let res = createOrder({ input: data });
-                        if(res){
-                          console.log("Order created");
+                        try {
+                          let res = await createOrder({ input: data });
+                          if (res) {
+                            setMsg({
+                              state: true,
+                              message: "Order created Successfully",
+                            });
+
+                            setOrderTitle("");
+                            setOrderCountry("");
+                            setOrderCity("");
+                            setOrderZip("");
+                            setOrderStreet("");
+                            setCreateLoader("");
+                            setCreateLoader(false);
+                          } else {
+                            setMsg({
+                              state: true,
+                              message: "failed to create order",
+                            });
+
+                            setCreateLoader(false);
+                          }
+                        } catch (error) {
+                          setMsg({
+                            state: true,
+                            message: "failed to create order",
+                          });
+
+                          setCreateLoader(false);
                         }
                       }
                     }}
                   >
-                    Create
+                    {createLoader ? (
+                      <ClipLoader color="#FFFFFF" css={override} size={30} />
+                    ) : (
+                      "Create"
+                    )}
                   </button>
 
                   <button
@@ -264,6 +415,12 @@ const CreateOrderModal = ({ values, fetchData }) => {
                     Cancel
                   </button>
                 </div>
+
+                {msg.state ? (
+                  <p className="block text-center mt-4 text-red-400">
+                    {msg.message}
+                  </p>
+                ) : null}
               </form>
             </div>
           </div>

@@ -5,11 +5,6 @@ import { useAuth } from "../context/authContext";
 export const useGQLQuery = (key, query, variables, configs = {}) => {
   const { userToken } = useAuth();
   let endPoint = process.env.REACT_APP_PRODUCTION_SERVER;
-
-  // const headers = {
-
-  // };
-
   const headers = {
     headers: {
       Accept: "application/json",

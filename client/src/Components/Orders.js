@@ -15,6 +15,7 @@ const Orders = () => {
   const [modalState, setModalState] = useState(false);
   const [updateModal, setUpdateModalState] = useState(false);
   const [orderData, setOrderData] = useState({});
+  const [deleteLoaderState, setDeleteLoaderState] = useState(false);
 
   const override = css`
     display: block;
@@ -36,15 +37,21 @@ const Orders = () => {
   );
 
   return (
-    <div className="flex h-fit w-9/12  mx-auto mt-14 ">
+    <div className="flex h-fit w-9/12  mx-auto mt-14">
       {isLoading ? (
-        <div className="bg-red-200 w-fit absolute">
-          <ClipLoader color="#00BFA5" css={override} size={30} />
+        <div className="w-full mx-auto flex items-center justify-center">
+          <ClipLoader color="#00BFA5" css={override} size={50} className="" />
         </div>
       ) : error ? (
-        <p>Opps something happened please try again later</p>
+        <div className="absolute mx-auto  w-full">
+          <p className="text-center  w-full">
+            Opps something happened please try again later
+          </p>
+        </div>
       ) : data.getOrders.length < 1 ? (
-        <p>No Users found</p>
+        <div className="absolute mx-auto  w-full">
+          <p>No Orders found</p>
+        </div>
       ) : (
         <div className="overflow-auto rounded-lg shadow mx-auto md:w-3/4 lg:w-3/4 h-3/4">
           <div className="flex items-center justify-between mb-4">
@@ -71,7 +78,7 @@ const Orders = () => {
             </select>
           </div>
 
-          <div className="bg-red-200 max-h-96">
+          <div className=" max-h-96">
             <table className="w-full">
               <thead className="bg-gray-50 border-b-2 border-gray-200">
                 <tr>
@@ -129,8 +136,6 @@ const Orders = () => {
                       }`}
                     >
                       <div className="flex flex-row items-center justify-evenly">
-                        {/* <UpdateModal orderId={order.uid} />
-                      <DeleteButton orderId={order.uid} /> */}
 
                         <button
                           className="px-3 bg-main sm:py-3 text-white rounded hover:bg-mainHover"
@@ -145,8 +150,15 @@ const Orders = () => {
 
                         <button
                           className="px-3 bg-red-600 sm:py-3 text-white rounded hover:bg-red-700"
-                          onClick={() => {
-                            deleteOrder({ id: order.uid });
+                          disabled={deleteLoaderState ? "disabled" : ""}
+                          onClick={async () => {
+                            setDeleteLoaderState(true);
+
+                            let deleteId = await deleteOrder({ id: order.uid });
+
+                            if (deleteId) {
+                              setDeleteLoaderState(false);
+                            }
                           }}
                         >
                           Delete
