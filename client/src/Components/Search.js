@@ -7,6 +7,7 @@ import { useGQLQuery } from "../hooks/useGqlQueries";
 import { useGQLMutation } from "../hooks/useGqlMutations";
 import { timeConverter } from "../helper/UnixTimeConverter";
 import { css } from "@emotion/react";
+import { useAuth } from "../context/authContext";
 
 const Search = () => {
   const [searchText, setSearchText] = useState("");
@@ -17,6 +18,7 @@ const Search = () => {
     state: false,
     msg: "",
   });
+  const { userToken } = useAuth();
 
   const queryClient = useQueryClient();
 
@@ -67,7 +69,6 @@ const Search = () => {
           text-gray-500
           leading-tight
           focus:outline-none focus:shadow-outline
-          dark:text-white
           dark:shadow-lg
           
           ${
@@ -228,4 +229,3 @@ const Search = () => {
 };
 
 export default Search;
-

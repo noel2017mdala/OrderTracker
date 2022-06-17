@@ -4,9 +4,9 @@ import { ToastContainer, toast } from "react-toastify";
 import ClipLoader from "react-spinners/ClipLoader";
 import { useAuth } from "../context/authContext";
 import { Link, useNavigate } from "react-router-dom";
-import EmailValidator from '../helper/EmailValidator';
+import EmailValidator from "../helper/EmailValidator";
 const Login = () => {
-  const { logIn, currentUser } = useAuth();
+  const { logIn } = useAuth();
   const [errorState, setErrorState] = useState({
     emailError: false,
     passwordErr: false,
@@ -18,8 +18,6 @@ const Login = () => {
     email: "",
     password: "",
   });
-
-
 
   const [errMsg, setErrMsg] = useState({
     state: false,
@@ -83,13 +81,14 @@ const Login = () => {
     } else if (!EmailValidator(uiState.email)) {
       setErrorState({
         emailError: true,
-        
       });
       setLoginState(false);
     } else {
       try {
-        await logIn(uiState.email, uiState.password);
-        navigate("/");
+        let userLogin = await logIn(uiState.email, uiState.password);
+        if (userLogin) {
+          navigate("/");
+        }
       } catch (error) {
         setErrMsg({
           state: true,

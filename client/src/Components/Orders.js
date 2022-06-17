@@ -9,6 +9,7 @@ import { DELETE_ORDER_BY_ID } from "../graphql/mutations";
 import UpdateModal from "./Modal/UpdateModal";
 import { useGQLMutation } from "../hooks/useGqlMutations";
 import { useGQLQuery } from "../hooks/useGqlQueries";
+import { useAuth } from "../context/authContext";
 
 const Orders = () => {
   const [selectState, setSelectState] = useState(5);
@@ -16,6 +17,7 @@ const Orders = () => {
   const [updateModal, setUpdateModalState] = useState(false);
   const [orderData, setOrderData] = useState({});
   const [deleteLoaderState, setDeleteLoaderState] = useState(false);
+  const { userToken } = useAuth();
 
   const override = css`
     display: block;
@@ -31,7 +33,7 @@ const Orders = () => {
   });
 
   const { data, isLoading, error } = useGQLQuery(
-    ["get_orders", selectState],
+    ["get_orders", selectState, userToken],
     GET_ORDERS,
     { limit: Number(selectState) }
   );
@@ -43,14 +45,14 @@ const Orders = () => {
           <ClipLoader color="#00BFA5" css={override} size={50} className="" />
         </div>
       ) : error ? (
-        <div className="absolute mx-auto  w-full">
+        <div className="w-full mx-auto flex items-center justify-center">
           <p className="text-center  w-full">
             Opps something happened please try again later
           </p>
         </div>
       ) : data.getOrders.length < 1 ? (
-        <div className="absolute mx-auto  w-full">
-          <p>No Orders found</p>
+        <div className="w-full mx-auto flex items-center justify-center">
+          <p className="text-center  w-full">No Orders found</p>
         </div>
       ) : (
         <div className="overflow-auto rounded-lg shadow mx-auto md:w-3/4 lg:w-3/4 h-3/4">

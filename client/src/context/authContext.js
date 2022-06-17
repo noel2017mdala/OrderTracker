@@ -17,6 +17,15 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logIn = (email, password) => {
+    
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        user.getIdToken(true).then((token) => {
+          setUserToken(token);
+        });
+      }
+    });
+
     return auth.signInWithEmailAndPassword(email, password);
   };
 
@@ -41,7 +50,7 @@ export const AuthProvider = ({ children }) => {
     userToken,
     signUp,
     logIn,
-    logOut
+    logOut,
   };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

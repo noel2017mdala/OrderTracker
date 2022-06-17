@@ -9,7 +9,7 @@ const Users = () => {
   const { userToken } = useAuth();
 
   const { data, isLoading, error } = useGQLQuery(
-    ["get_users", selectState],
+    ["get_users", selectState, userToken],
     GET_USERS,
     { limit: Number(selectState) }
   );
@@ -28,15 +28,15 @@ const Users = () => {
           <ClipLoader color="#00BFA5" css={override} size={50} className="" />
         </div>
       ) : error ? (
-        <div className="absolute mx-auto  w-full">
-        <p className="text-center  w-full">
-          Opps something happened please try again later
-        </p>
-      </div>
+        <div className="w-full mx-auto flex items-center justify-center">
+          <p className="text-center  w-full">
+            Opps something happened please try again later
+          </p>
+        </div>
       ) : data.getUsers.length < 1 ? (
-        <div className="absolute mx-auto  w-full">
-        <p>No Users found</p>
-      </div>
+        <div className="w-full mx-auto flex items-center justify-center">
+          <p className="text-center  w-full">No Users found</p>
+        </div>
       ) : (
         <div className="overflow-auto rounded-lg shadow mx-auto md:w-3/4 lg:w-3/4">
           <select
