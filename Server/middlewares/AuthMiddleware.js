@@ -1,26 +1,24 @@
 const admin = require("../Configs/config");
 
 const AuthMiddleware = async (req, res, next) => {
-  if (req.headers.authorization) {
-    let token = req.headers.authorization.replace("Bearer ", "");
-    admin
-      .auth()
-      .verifyIdToken(token)
-      .then((decodedToken) => {
-        if (decodedToken && decodedToken.uid) {
-          res.status(200);
-          return next();
-        } else {
-          res.status(400).json({
-            message: "user not authenticated",
-          });
-        }
-      });
+  let authHeader = req.headers["authorization"];
+
+  if (authHeader) {
+    let token = req.headers["authorization"].replace("Bearer ", "");
+    if (token) {
+      let response = await admin.auth().verifyIdToken(token);
+      if (response && response.uid) {
+        next();
+      } else {
+        res.status(401).json({
+          message: "user not authenticated",
+        });
+      }
+    }
   } else {
-    res.status(400).json({
+    res.status(401).json({
       message: "user not authenticated",
     });
   }
 };
-
 module.exports = AuthMiddleware;

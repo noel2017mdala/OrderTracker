@@ -161,7 +161,7 @@ const Login = () => {
 
             <p className="text-red-500 text-sm italic pt-3">
               {errorState.emailError
-                ? "Please enter a valid Phone number."
+                ? "Please enter a valid Email Address."
                 : null}
             </p>
           </div>

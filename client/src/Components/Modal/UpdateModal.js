@@ -52,9 +52,10 @@ const UpdateModal = ({ modalState, orderData }) => {
     } else {
       let data = {
         address: {
-          city: city,
-          country: country,
-          street: street,
+          city,
+          country,
+          street,
+          zip,
         },
         title: title,
         uid: orderData.uid,
