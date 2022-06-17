@@ -7,7 +7,7 @@ const AuthMiddleware = async (req, res, next) => {
       .auth()
       .verifyIdToken(token)
       .then((decodedToken) => {
-        if (decodedToken.uid) {
+        if (decodedToken && decodedToken.uid) {
           res.status(200);
           return next();
         } else {
