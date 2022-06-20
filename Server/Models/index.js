@@ -34,7 +34,7 @@ const getOrders = async (limit) => {
 
     return data;
   } catch (error) {
-    console.log(error);
+    return error;
   }
 };
 
@@ -181,11 +181,10 @@ const deleteOrderById = async (id) => {
         if (data) {
           return id;
         } else {
-          console.log("Failed to delete");
+          return false;
         }
       } catch (error) {
-        console.log(error);
-        return false;
+        return error;
       }
     } else {
       return false;

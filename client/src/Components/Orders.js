@@ -8,8 +8,10 @@ import { useQueryClient } from "react-query";
 import { DELETE_ORDER_BY_ID } from "../graphql/mutations";
 import UpdateModal from "./Modal/UpdateModal";
 import { useGQLMutation } from "../hooks/useGqlMutations";
+import notify from "../helper/Notification";
 import { useGQLQuery } from "../hooks/useGqlQueries";
 import { useAuth } from "../context/authContext";
+import { ToastContainer } from "react-toastify";
 
 const Orders = () => {
   const [selectState, setSelectState] = useState(5);
@@ -161,9 +163,21 @@ const Orders = () => {
                             let deleteId = await deleteOrder({ id: order.uid });
 
                             if (deleteId) {
+                              
                               setDeleteLoaderState(false);
+                              notify.success("Order deleted successfully");
+                            }else{
+                              notify.fail("Failed to delete oder")
                             }
                           }}
+
+                          style={
+                            deleteLoaderState
+                              ? {
+                                  cursor: "not-allowed",
+                                }
+                              : null
+                          }
                         >
                           Delete
                         </button>
@@ -181,6 +195,8 @@ const Orders = () => {
       {updateModal ? (
         <UpdateModal modalState={setUpdateModalState} orderData={orderData} />
       ) : null}
+
+      <ToastContainer />
     </div>
   );
 };
