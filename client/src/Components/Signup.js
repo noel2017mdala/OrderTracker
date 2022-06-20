@@ -3,6 +3,9 @@ import { useAuth } from "../context/authContext";
 import { css } from "@emotion/react";
 import ClipLoader from "react-spinners/ClipLoader";
 import EmailValidator from "../helper/EmailValidator";
+import "react-toastify/dist/ReactToastify.css";
+import notify from "../helper/Notification";
+import { ToastContainer, toast, cssTransition } from "react-toastify";
 const Signup = ({ tabs }) => {
   const { signUp, currentUser } = useAuth();
   const [emailField, setEmailField] = useState("");
@@ -33,7 +36,7 @@ const Signup = ({ tabs }) => {
     }
   };
 
-  const validateLogin = async (e) => {
+  const validateSignUp = async (e) => {
     e.preventDefault();
     setLoginState(true);
 
@@ -62,6 +65,18 @@ const Signup = ({ tabs }) => {
         passwordErr: true,
         confirmPasswordErr: false,
       });
+    } else if (passwordField.length < 6) {
+      setErrorState({
+        emailErr: false,
+        passwordErr: true,
+        confirmPasswordErr: false,
+      });
+
+      setMsg({
+        state: true,
+        message: "password should have 6 or more characters ",
+      });
+      setLoginState(false);
     } else if (ConfirmPasswordField === "") {
       setErrorState({
         emailErr: false,
@@ -96,6 +111,7 @@ const Signup = ({ tabs }) => {
         await signUp(emailField, passwordField);
         tabs.method({ login: true, createAccount: false });
       } catch (error) {
+        notify.fail("Failed to create user please try again later");
         setMsg({
           state: false,
           message: "Failed to create user please try again later",
@@ -111,15 +127,16 @@ const Signup = ({ tabs }) => {
   `;
 
   return (
-    <div className="w-full sm:max-w-xs md:max-w-md m-auto pb-4">
-      <form className="bg-white rounded px-8 pt-6 pb-8 mb-4 ">
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2 uppercase dark:text-white">
-            Email
-          </label>
+    <>
+      <div className="w-full sm:max-w-xs md:max-w-md m-auto pb-4">
+        <form className="bg-white rounded px-8 pt-6 pb-8 mb-4 ">
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2 uppercase dark:text-white">
+              Email
+            </label>
 
-          <input
-            className={`
+            <input
+              className={`
           shadow
           appearance-none
           border
@@ -139,35 +156,35 @@ const Signup = ({ tabs }) => {
               : null
           }
 `}
-            id="username"
-            type="text"
-            value={emailField}
-            placeholder="Email"
-            onInput={validate}
-            onChange={(e) => {
-              setEmailField(e.target.value);
+              id="username"
+              type="text"
+              value={emailField}
+              placeholder="Email"
+              onInput={validate}
+              onChange={(e) => {
+                setEmailField(e.target.value);
 
-              setErrorState({
-                ...errorState,
-                emailErr: false,
-                passwordErr: false,
-              });
-            }}
-          />
+                setErrorState({
+                  ...errorState,
+                  emailErr: false,
+                  passwordErr: false,
+                });
+              }}
+            />
 
-          <p className="text-red-500 text-sm italic pt-3">
-            {errorState.emailErr
-              ? "Please enter a valid Phone Email address."
-              : null}
-          </p>
-        </div>
+            <p className="text-red-500 text-sm italic pt-3">
+              {errorState.emailErr
+                ? "Please enter a valid Phone Email address."
+                : null}
+            </p>
+          </div>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 text-sm font-bold mb-2 uppercase ">
-            Password
-          </label>
-          <input
-            className={`
+          <div className="mb-6">
+            <label className="block text-gray-700 text-sm font-bold mb-2 uppercase ">
+              Password
+            </label>
+            <input
+              className={`
           shadow
           appearance-none
           rounded
@@ -191,32 +208,32 @@ const Signup = ({ tabs }) => {
               : null
           }
         `}
-            id="password"
-            type="password"
-            value={passwordField}
-            placeholder="******************"
-            onInput={validate}
-            onChange={(e) => {
-              setPasswordField(e.target.value);
+              id="password"
+              type="password"
+              value={passwordField}
+              placeholder="******************"
+              onInput={validate}
+              onChange={(e) => {
+                setPasswordField(e.target.value);
 
-              setErrorState({
-                ...errorState,
-                emailErr: false,
-                passwordErr: false,
-              });
-            }}
-          />
-          <p className="text-red-500 text-sm italic pt-3">
-            {errorState.passwordErr ? "Please enter a valid password." : null}
-          </p>
-        </div>
+                setErrorState({
+                  ...errorState,
+                  emailErr: false,
+                  passwordErr: false,
+                });
+              }}
+            />
+            <p className="text-red-500 text-sm italic pt-3">
+              {errorState.passwordErr ? "Please enter a valid password." : null}
+            </p>
+          </div>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 text-sm font-bold mb-2 uppercase ">
-            Confirm Password
-          </label>
-          <input
-            className={`
+          <div className="mb-6">
+            <label className="block text-gray-700 text-sm font-bold mb-2 uppercase ">
+              Confirm Password
+            </label>
+            <input
+              className={`
           shadow
           appearance-none
           rounded
@@ -240,31 +257,31 @@ const Signup = ({ tabs }) => {
               : null
           }
         `}
-            type="password"
-            value={ConfirmPasswordField}
-            placeholder="******************"
-            onInput={validate}
-            onChange={(e) => {
-              setConfirmPasswordField(e.target.value);
+              type="password"
+              value={ConfirmPasswordField}
+              placeholder="******************"
+              onInput={validate}
+              onChange={(e) => {
+                setConfirmPasswordField(e.target.value);
 
-              setErrorState({
-                ...errorState,
-                emailErr: false,
-                passwordErr: false,
-                confirmPasswordErr: false,
-              });
-            }}
-          />
-          <p className="text-red-500 text-sm italic pt-3">
-            {errorState.confirmPasswordErr
-              ? "Please enter a valid password."
-              : null}
-          </p>
-        </div>
+                setErrorState({
+                  ...errorState,
+                  emailErr: false,
+                  passwordErr: false,
+                  confirmPasswordErr: false,
+                });
+              }}
+            />
+            <p className="text-red-500 text-sm italic pt-3">
+              {errorState.confirmPasswordErr
+                ? "Please enter a valid password."
+                : null}
+            </p>
+          </div>
 
-        <div className="flex items-center justify-between">
-          <button
-            className="
+          <div className="flex items-center justify-between">
+            <button
+              className="
           bg-main
           text-white
           font-bold
@@ -274,30 +291,34 @@ const Signup = ({ tabs }) => {
           focus:outline-none focus:shadow-outline
           shadow
         hover:bg-mainHover"
-            type="button"
-            onClick={validateLogin}
-            disabled={loginState ? "disabled" : ""}
-            style={
-              loginState
-                ? {
-                    cursor: "not-allowed",
-                  }
-                : null
-            }
-          >
-            {loginState ? (
-              <ClipLoader color="#FFFFFF" css={override} size={30} />
-            ) : (
-              "Sign up"
-            )}
-          </button>
-        </div>
-      </form>
+              type="button"
+              onClick={validateSignUp}
+              disabled={loginState ? "disabled" : ""}
+              style={
+                loginState
+                  ? {
+                      cursor: "not-allowed",
+                    }
+                  : null
+              }
+            >
+              {loginState ? (
+                <ClipLoader color="#FFFFFF" css={override} size={30} />
+              ) : (
+                "Sign up"
+              )}
+            </button>
+          </div>
+        </form>
 
-      {msgState.state ? (
-        <p className="text-center font-bold text-red-400">{msgState.message}</p>
-      ) : null}
-    </div>
+        {msgState.state ? (
+          <p className="text-center font-bold text-red-400">
+            {msgState.message}
+          </p>
+        ) : null}
+      </div>
+      <ToastContainer />
+    </>
   );
 };
 

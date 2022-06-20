@@ -10,9 +10,8 @@ const emailValidator = (email) => {
 };
 
 const getOrders = async (limit) => {
-  let userOrders = db.collection("orders");
-
   try {
+    let userOrders = db.collection("orders");
     const docs = await userOrders
       .where("uid", "!=", "")
       .limit(limit || 5)
@@ -55,7 +54,7 @@ const getUsers = async (limit) => {
         }
       });
     } else {
-      return []
+      return [];
     }
     return data;
   } catch (error) {
@@ -91,12 +90,15 @@ const getOrder = async (id) => {
   }
 };
 
-const getOrderByEmail = async (input) => {
+const getOrderByEmail = async (input, limit) => {
   if (input !== "" && emailValidator(input)) {
     try {
       let arr = [];
       const citiesRef = db.collection("orders");
-      const data = await citiesRef.where("customer.email", "==", input).get();
+      const data = await citiesRef
+        .where("customer.email", "==", input)
+        .limit(limit || 5)
+        .get();
       if (!data.empty) {
         data.forEach((docs) => {
           arr.push({
@@ -136,8 +138,10 @@ const updateOrder = async (input) => {
 
 const createDocument = async (input) => {
   if (input.uid) {
+    //check if the order already exist with the same uid
     const getUser = await getOrder(input.uid);
-    if (!getUser) {
+
+    if (getUser.length < 1) {
       try {
         let insertDAta = await db
           .collection("orders")
@@ -147,15 +151,14 @@ const createDocument = async (input) => {
           const getUser = await db.collection("orders").doc(input.uid).get();
           return getUser.data();
         } else {
-          console.log("Failed to add data");
+          return;
         }
       } catch (error) {
-        return false;
+        return error;
       }
     } else {
-      console.log("failed to create user");
+      return;
     }
-    return;
   }
 };
 

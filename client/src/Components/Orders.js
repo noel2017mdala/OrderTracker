@@ -17,6 +17,7 @@ const Orders = () => {
   const [updateModal, setUpdateModalState] = useState(false);
   const [orderData, setOrderData] = useState({});
   const [deleteLoaderState, setDeleteLoaderState] = useState(false);
+
   const { userToken } = useAuth();
 
   const override = css`
@@ -35,7 +36,9 @@ const Orders = () => {
   const { data, isLoading, error } = useGQLQuery(
     ["get_orders", selectState, userToken],
     GET_ORDERS,
-    { limit: Number(selectState) }
+    {
+      limit: Number(selectState),
+    }
   );
 
   return (
@@ -55,7 +58,7 @@ const Orders = () => {
           <p className="text-center  w-full">No Orders found</p>
         </div>
       ) : (
-        <div className="overflow-auto rounded-lg shadow mx-auto md:w-3/4 lg:w-3/4 h-3/4">
+        <div className="rounded-lg shadow mx-auto md:w-3/4 lg:w-3/4 h-3/4">
           <div className="flex items-center justify-between mb-4">
             <button
               className="px-3 bg-main sm:py-3 text-white rounded hover:bg-mainHover"
@@ -80,7 +83,7 @@ const Orders = () => {
             </select>
           </div>
 
-          <div className=" max-h-96">
+          <div className=" max-h-96 overflow-auto">
             <table className="w-full">
               <thead className="bg-gray-50 border-b-2 border-gray-200">
                 <tr>
@@ -138,7 +141,6 @@ const Orders = () => {
                       }`}
                     >
                       <div className="flex flex-row items-center justify-evenly">
-
                         <button
                           className="px-3 bg-main sm:py-3 text-white rounded hover:bg-mainHover"
                           onClick={(e) => {
