@@ -19,7 +19,7 @@ const Users = () => {
     border-color: #00bfa5;
   `;
 
-  if (error) return <div>Opps something</div>;
+  // if (error) return <div>Opps something</div>;
 
   return (
     <div className="flex h-fit w-9/12  mx-auto mt-14">

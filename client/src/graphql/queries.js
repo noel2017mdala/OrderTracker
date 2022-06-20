@@ -33,8 +33,8 @@ export const GET_ORDERS = gql`
 `;
 
 export const GET_ORDER_BY_EMAIL = gql`
-  query ($email: String) {
-    getOrderByEmail(email: $email) {
+  query ($email: String, $limit: Int) {
+    getOrderByEmail(email: $email, limit: $limit) {
       title
       uid
       bookingDate

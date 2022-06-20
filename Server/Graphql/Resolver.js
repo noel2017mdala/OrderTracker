@@ -11,6 +11,7 @@ const {
 
 const rootResolver = {
   getOrders: ({ limit }) => {
+  
     return getOrders(limit);
   },
 
@@ -22,8 +23,8 @@ const rootResolver = {
     return getUsers(limit);
   },
 
-  getOrderByEmail: ({ email }) => {
-    return getOrderByEmail(email);
+  getOrderByEmail: ({ email, limit }) => {
+    return getOrderByEmail(email, limit);
   },
 
   updateOrder: ({ input }) => {

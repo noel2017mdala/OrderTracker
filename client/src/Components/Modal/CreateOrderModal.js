@@ -5,9 +5,11 @@ import { useQueryClient } from "react-query";
 import { CREATE_ORDER } from "../../graphql/mutations";
 import { useGQLMutation } from "../../hooks/useGqlMutations";
 import ClipLoader from "react-spinners/ClipLoader";
+import notify from "../../helper/Notification";
 import uuid from "react-uuid";
 import styles from "../../styles.css";
 import { css } from "@emotion/react";
+import { ToastContainer } from "react-toastify";
 const CreateOrderModal = ({ values, fetchData }) => {
   const [orderTitle, setOrderTitle] = useState("");
   const [orderCountry, setOrderCountry] = useState("");
@@ -42,6 +44,136 @@ const CreateOrderModal = ({ values, fetchData }) => {
       queryClient.invalidateQueries("get_orders");
     },
   });
+
+  const validateCreateOrder = async () => {
+    if (
+      orderCity === "" &&
+      orderTitle === "" &&
+      orderCountry === "" &&
+      orderZip === "" &&
+      orderStreet === ""
+    ) {
+      setError({
+        orderTitleErr: true,
+        orderCityErr: true,
+        orderCountryErr: true,
+        orderZipErr: true,
+        orderStreetErr: true,
+      });
+      setCreateLoader(false);
+    } else if (orderCity === "") {
+      setError({
+        orderTitleErr: false,
+        orderCityErr: true,
+        orderCountryErr: false,
+        orderZipErr: false,
+        orderStreetErr: false,
+      });
+      setCreateLoader(false);
+    } else if (orderTitle === "") {
+      setError({
+        orderTitleErr: true,
+        orderCityErr: false,
+        orderCountryErr: false,
+        orderZipErr: false,
+        orderStreetErr: false,
+      });
+      setCreateLoader(false);
+    } else if (orderCountry === "") {
+      setError({
+        orderTitleErr: false,
+        orderCityErr: false,
+        orderCountryErr: true,
+        orderZipErr: false,
+        orderStreetErr: false,
+      });
+      setCreateLoader(false);
+    } else if (orderZip === "") {
+      setError({
+        orderTitleErr: false,
+        orderCityErr: false,
+        orderCountryErr: false,
+        orderZipErr: true,
+        orderStreetErr: false,
+      });
+      setCreateLoader(false);
+    } else if (orderStreet === "") {
+      setError({
+        orderTitleErr: false,
+        orderCityErr: false,
+        orderCountryErr: false,
+        orderZipErr: false,
+        orderStreetErr: true,
+      });
+      setCreateLoader(false);
+    } else {
+      setError({
+        orderTitleErr: false,
+        orderCityErr: false,
+        orderCountryErr: false,
+        orderZipErr: false,
+        orderStreetErr: false,
+      });
+
+      const unixTime = Math.floor(new Date(Date.now()).getTime() / 1000);
+
+      let data = {
+        address: {
+          city: orderCity,
+          country: orderCountry,
+          zip: orderZip,
+          street: orderStreet,
+        },
+        uid: uuid(),
+        title: orderTitle,
+        bookingDate: String(unixTime),
+        customer: {
+          name: currentUser.displayName
+            ? currentUser.displayName
+            : currentUser.email,
+          email: currentUser.email,
+          phone: currentUser.phoneNumber
+            ? currentUser.phoneNumber
+            : "0123456789",
+        },
+      };
+      try {
+        let res = await createOrder({ input: data });
+        if (res.createOrder) {
+
+          notify.success("Order created Successfully");
+          setMsg({
+            state: true,
+            message: "Order created Successfully",
+          });
+
+          setOrderTitle("");
+          setOrderCountry("");
+          setOrderCity("");
+          setOrderZip("");
+          setOrderStreet("");
+          setCreateLoader("");
+          setCreateLoader(false);
+        } else {
+          notify.fail("failed to create order");
+          setMsg({
+            state: true,
+            message: "failed to create order",
+          });
+
+          setCreateLoader(false);
+        }
+      } catch (error) {
+        notify.fail("failed to create order");
+        setMsg({
+          state: true,
+          message: "failed to create order",
+        });
+
+        setCreateLoader(false);
+      }
+    }
+  };
   return (
     <>
       <div
@@ -261,142 +393,19 @@ ${
           shadow
         hover:bg-mainHover
                 "
-                    onClick={async (e) => {
+                    onClick={(e) => {
                       e.preventDefault();
                       setCreateLoader(true);
-
-                      if (
-                        orderCity === "" &&
-                        orderTitle === "" &&
-                        orderCountry === "" &&
-                        orderZip === "" &&
-                        orderStreet === ""
-                      ) {
-                        setError({
-                          orderTitleErr: true,
-                          orderCityErr: true,
-                          orderCountryErr: true,
-                          orderZipErr: true,
-                          orderStreetErr: true,
-                        });
-                        setCreateLoader(false);
-                      } else if (orderCity === "") {
-                        setError({
-                          orderTitleErr: false,
-                          orderCityErr: true,
-                          orderCountryErr: false,
-                          orderZipErr: false,
-                          orderStreetErr: false,
-                        });
-                        setCreateLoader(false);
-                      } else if (orderTitle === "") {
-                        setError({
-                          orderTitleErr: true,
-                          orderCityErr: false,
-                          orderCountryErr: false,
-                          orderZipErr: false,
-                          orderStreetErr: false,
-                        });
-                        setCreateLoader(false);
-                      } else if (orderCountry === "") {
-                        setError({
-                          orderTitleErr: false,
-                          orderCityErr: false,
-                          orderCountryErr: true,
-                          orderZipErr: false,
-                          orderStreetErr: false,
-                        });
-                        setCreateLoader(false);
-                      } else if (orderZip === "") {
-                        setError({
-                          orderTitleErr: false,
-                          orderCityErr: false,
-                          orderCountryErr: false,
-                          orderZipErr: true,
-                          orderStreetErr: false,
-                        });
-                        setCreateLoader(false);
-                      } else if (orderStreet === "") {
-                        setError({
-                          orderTitleErr: false,
-                          orderCityErr: false,
-                          orderCountryErr: false,
-                          orderZipErr: false,
-                          orderStreetErr: true,
-                        });
-                        setCreateLoader(false);
-                      } else {
-                        setError({
-                          orderTitleErr: false,
-                          orderCityErr: false,
-                          orderCountryErr: false,
-                          orderZipErr: false,
-                          orderStreetErr: false,
-                        });
-                        const date = new Date();
-                        let year = date.getFullYear();
-                        let month = date.getMonth();
-                        let day = date.getDay();
-
-                        let dateStr = `${year}-${month}-${day}`;
-
-                        const unixTime = Math.floor(
-                          new Date(dateStr).getTime() / 1000
-                        );
-
-                        let data = {
-                          address: {
-                            city: orderCity,
-                            country: orderCountry,
-                            zip: orderZip,
-                            street: orderStreet,
-                          },
-                          uid: uuid(),
-                          title: orderTitle,
-                          bookingDate: String(unixTime),
-                          customer: {
-                            name: currentUser.displayName
-                              ? currentUser.displayName
-                              : currentUser.email,
-                            email: currentUser.email,
-                            phone: currentUser.phoneNumber
-                              ? currentUser.phoneNumber
-                              : "0123456789",
-                          },
-                        };
-                        try {
-                          let res = await createOrder({ input: data });
-                          if (res) {
-                            setMsg({
-                              state: true,
-                              message: "Order created Successfully",
-                            });
-
-                            setOrderTitle("");
-                            setOrderCountry("");
-                            setOrderCity("");
-                            setOrderZip("");
-                            setOrderStreet("");
-                            setCreateLoader("");
-                            setCreateLoader(false);
-                          } else {
-                            setMsg({
-                              state: true,
-                              message: "failed to create order",
-                            });
-
-                            setCreateLoader(false);
-                          }
-                        } catch (error) {
-                          setMsg({
-                            state: true,
-                            message: "failed to create order",
-                          });
-
-                          setCreateLoader(false);
-                        }
-                      }
+                      validateCreateOrder();
                     }}
+                    disabled={createLoader ? "disabled" : ""}
+                    style={
+                      createLoader
+                        ? {
+                            cursor: "not-allowed",
+                          }
+                        : null
+                    }
                   >
                     {createLoader ? (
                       <ClipLoader color="#FFFFFF" css={override} size={30} />
@@ -411,6 +420,14 @@ ${
                       e.preventDefault();
                       values(false);
                     }}
+                    style={
+                      createLoader
+                        ? {
+                            cursor: "not-allowed",
+                          }
+                        : null
+                    }
+                    disabled={createLoader ? "disabled" : ""}
                   >
                     Cancel
                   </button>
@@ -426,6 +443,7 @@ ${
           </div>
         </div>
       </div>
+      <ToastContainer  />
     </>
   );
 };

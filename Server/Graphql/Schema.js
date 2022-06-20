@@ -40,7 +40,7 @@ type Users{
 type Query{
     getOrders(limit: Int): [Orders],
     getOrder(id: ID): [Orders]
-    getOrderByEmail(email: String): [Orders]
+    getOrderByEmail(email: String, limit: Int): [Orders]
     getUsers(limit: Int): [Users]
 }
 

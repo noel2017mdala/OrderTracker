@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { css } from "@emotion/react";
-import { ToastContainer, toast } from "react-toastify";
 import ClipLoader from "react-spinners/ClipLoader";
 import { useAuth } from "../context/authContext";
 import { Link, useNavigate } from "react-router-dom";
+import "react-toastify/dist/ReactToastify.css";
+import notify from "../helper/Notification";
+import { ToastContainer, toast, cssTransition } from "react-toastify";
 import EmailValidator from "../helper/EmailValidator";
 const Login = () => {
   const { logIn } = useAuth();
@@ -31,31 +33,18 @@ const Login = () => {
     }
   };
 
-  let notify = {
-    success: (message) => {
-      toast.success(message, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-    },
+  const bounce = cssTransition({
+    enter: "animate__animated animate__bounceIn",
+    exit: "animate__animated animate__bounceOut",
+  });
 
-    fail: (message) => {
-      toast.error(message, {
-        position: "top-right",
-        autoClose: 9000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-    },
-  };
+  // function animateCss() {
+  //   toast.dark("Hey 👋, see how easy!", {
+  //     transition: bounce
+  //   });
+  // }
+
+  
 
   const validateLogin = async (e) => {
     setLoginState(true);
@@ -87,9 +76,11 @@ const Login = () => {
       try {
         let userLogin = await logIn(uiState.email, uiState.password);
         if (userLogin) {
+          notify.success("Login Successful");
           navigate("/");
         }
       } catch (error) {
+        notify.fail("failed to login please try again");
         setErrMsg({
           state: true,
           msg: "failed to login please try again",
@@ -256,6 +247,7 @@ const Login = () => {
           <p className="text-center font-bold text-red-400">{errMsg.msg}</p>
         ) : null}
       </div>
+      <ToastContainer  />
     </>
   );
 };

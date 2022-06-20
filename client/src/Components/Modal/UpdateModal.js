@@ -7,6 +7,8 @@ import { css } from "@emotion/react";
 import ClipLoader from "react-spinners/ClipLoader";
 import { UPDATE_ORDER } from "../../graphql/mutations";
 import { useGQLMutation } from "../../hooks/useGqlMutations";
+import { ToastContainer } from "react-toastify";
+import notify from "../../helper/Notification";
 
 const UpdateModal = ({ modalState, orderData }) => {
   const [title, setTitle] = useState(orderData.title);
@@ -62,14 +64,17 @@ const UpdateModal = ({ modalState, orderData }) => {
       };
       try {
         let result = await updateOrder({ input: data });
+        console.log(result);
 
-        if (result) {
+        if (result.updateOrder) {
+          notify.success("Order updated successfully");
           setMsg({
             state: true,
             message: "Order updated successfully",
           });
           setLoader(false);
         } else {
+          notify.fail("Failed to update Order");
           setMsg({
             state: true,
             message: "Failed to update Order",
@@ -77,6 +82,7 @@ const UpdateModal = ({ modalState, orderData }) => {
           setLoader(false);
         }
       } catch (error) {
+        notify.fail("Failed to update Order");
         setMsg({
           state: true,
           message: "Failed to update Order",
@@ -296,6 +302,7 @@ const UpdateModal = ({ modalState, orderData }) => {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </>
   );
 };
